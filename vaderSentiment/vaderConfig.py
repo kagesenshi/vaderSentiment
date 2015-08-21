@@ -28,6 +28,8 @@ BOOSTER_DICT = {}
 # check for special case idioms using a sentiment-laden keyword known to SAGE
 SPECIAL_CASE_IDIOMS = {}
 
+LOADED_LANGUAGES = []
+
 def load_languages(additional_language_configs=None):
     global NEGATE
 
@@ -42,6 +44,14 @@ def load_languages(additional_language_configs=None):
             cp = ConfigParser()
             cp.readfp(open(language_config))
             for lang in cp.sections():
+
+                key = ':'.join([language_config.strip(), lang.strip()])
+
+                if lang in LOADED_LANGUAGES:
+                    return
+                
+                LOADED_LANGUAGES.append(lang)
+
                 if cp.has_option(lang, "negate_words"):
                     NEGATE += [
                         i.strip() for i in cp.get(
