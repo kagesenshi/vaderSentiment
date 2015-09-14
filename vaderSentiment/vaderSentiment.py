@@ -171,11 +171,19 @@ def sentiment(text):
                 #other_idioms = {"back handed": -2, "blow smoke": -2, "blowing smoke": -2, "upper hand": 1, "break a leg": 2, 
                 #                "cooking with gas": 2, "in the black": 2, "in the red": -2, "on the ball": 2,"under the weather": -2}
             
-                onezero = u"{} {}".format(wordsAndEmoticons[i-1], wordsAndEmoticons[i])
-                twoonezero = u"{} {} {}".format(wordsAndEmoticons[i-2], wordsAndEmoticons[i-1], wordsAndEmoticons[i])
-                twoone = u"{} {}".format(wordsAndEmoticons[i-2], wordsAndEmoticons[i-1])
-                threetwoone = u"{} {} {}".format(wordsAndEmoticons[i-3], wordsAndEmoticons[i-2], wordsAndEmoticons[i-1])
-                threetwo = u"{} {}".format(wordsAndEmoticons[i-3], wordsAndEmoticons[i-2])
+                onezero = u" ".join([wordsAndEmoticons[i-1],
+                                            wordsAndEmoticons[i]])
+                twoonezero = u" ".join([wordsAndEmoticons[i-2], 
+                                        wordsAndEmoticons[i-1], wordsAndEmoticons[i]
+                                        ])
+                twoone = u" ".join([
+                                wordsAndEmoticons[i-2], 
+                                wordsAndEmoticons[i-1]])
+                threetwoone = u" ".join(
+                                [wordsAndEmoticons[i-3], wordsAndEmoticons[i-2], 
+                                    wordsAndEmoticons[i-1]])
+                threetwo = u" ".join([wordsAndEmoticons[i-3],
+                    wordsAndEmoticons[i-2]])
                 if onezero in SPECIAL_CASE_IDIOMS:
                     v = SPECIAL_CASE_IDIOMS[onezero]
                 elif twoonezero in SPECIAL_CASE_IDIOMS:
@@ -187,11 +195,14 @@ def sentiment(text):
                 elif threetwo in SPECIAL_CASE_IDIOMS:
                     v = SPECIAL_CASE_IDIOMS[threetwo]
                 if len(wordsAndEmoticons)-1 > i:
-                    zeroone = u"{} {}".format(wordsAndEmoticons[i], wordsAndEmoticons[i+1])
+                    zeroone = u" ".join([wordsAndEmoticons[i],
+                        wordsAndEmoticons[i+1]])
                     if zeroone in SPECIAL_CASE_IDIOMS:
                         v = SPECIAL_CASE_IDIOMS[zeroone]
                 if len(wordsAndEmoticons)-1 > i+1:
-                    zeroonetwo = u"{} {}".format(wordsAndEmoticons[i], wordsAndEmoticons[i+1], wordsAndEmoticons[i+2])
+                    zeroonetwo = u" ".join([
+                        wordsAndEmoticons[i], wordsAndEmoticons[i+1], wordsAndEmoticons[i+2]
+                        ])
                     if zeroonetwo in SPECIAL_CASE_IDIOMS:
                         v = SPECIAL_CASE_IDIOMS[zeroonetwo]
                 

@@ -39,10 +39,18 @@ def load_languages(additional_language_configs=None):
         os.path.join(os.path.dirname(__file__),'vader_sentiment_languages.cfg'),
     ] + additional_language_configs
 
+    def _split(text):
+        result = []
+        for i in text.strip().split("\n"):
+            if i.strip():
+                result.append(i)
+        return result
+
     for language_config in language_config_search_paths:
         if os.path.exists(language_config):
             cp = ConfigParser()
             cp.readfp(open(language_config))
+
             for lang in cp.sections():
 
                 key = ':'.join([language_config.strip(), lang.strip()])
@@ -52,50 +60,35 @@ def load_languages(additional_language_configs=None):
                 
                 LOADED_LANGUAGES.append(lang)
 
-                if cp.has_option(lang, "negate_words"):
-                    NEGATE += [
-                        i.strip() for i in cp.get(
-                            lang, "negate_words").strip().split('\n')
-                    ]
+                NEGATE += _split(cp.get(lang, "negate_words"))
 
+                for word in _split(cp.get(lang, "booster_increment_words")):
+                    BOOSTER_DICT[word] = B_INCR
 
-                if cp.has_option(lang, "booster_increment_words"):
-                    for word in [
-                        i.strip() for i in cp.get(
-                            lang, "booster_increment_words").strip().split('\n')
-                        ]:
-                        BOOSTER_DICT[word] = B_INCR
+                for word in _split(cp.get(lang, "booster_decrement_words")):
+                    BOOSTER_DICT[word] = B_DECR
 
-                if cp.has_option(lang, "booster_decrement_words"):
-                    for word in [
-                        i.strip() for i in cp.get(
-                            lang, "booster_decrement_words").strip().split('\n')
-                        ]:
-                        BOOSTER_DICT[word] = B_DECR
-                if cp.has_option(lang, "special_case_idioms"):
-                    for line in [
-                        i.strip() for i in cp.get(
-                            lang, "special_case_idioms").strip().split("\n")
-                        ]:
-                        k, v = line.split('=')
-                        SPECIAL_CASE_IDIOMS[k.strip()] = float(v.strip())
-                if cp.has_option(lang, "lexicon_file"):
-                    lexicon_file = cp.get(lang, "lexicon_file")
-                    lexicon_search_paths = [
-                        lexicon_file,
-                        os.path.join(os.path.dirname(language_config),lexicon_file),
-                        os.path.join(os.path.dirname(__file__), lexicon_file),
-                    ]
-                    valence_dict = None
-                    for f in lexicon_search_paths:
-                        if os.path.exists(f):
-                            valence_dict = make_lex_dict(f)
-                            break
+                for line in _split(cp.get(lang, "special_case_idioms")):
+                    k, v = line.split('=')
+                    SPECIAL_CASE_IDIOMS[k.strip()] = float(v.strip())
+
+                lexicon_file = cp.get(lang, "lexicon_file").strip()
+                lexicon_search_paths = [
+                    lexicon_file,
+                    os.path.join(os.path.dirname(language_config),lexicon_file),
+                    os.path.join(os.path.dirname(__file__), lexicon_file),
+                ]
+                valence_dict = None
+
+                for f in lexicon_search_paths:
+                    if os.path.exists(f):
+                        valence_dict = make_lex_dict(f)
+                        break
+            
+                if valence_dict is None:
+                    raise Exception("Unable to load %s" % lexicon_file)
                 
-                    if valence_dict is None:
-                        raise Exception("Unable to load %s" % lexicon_file)
-                    
-                    for k, v in valence_dict.items():
-                        WORD_VALENCE_DICT[k] = v
+                for k, v in valence_dict.items():
+                    WORD_VALENCE_DICT[k] = v
 
 load_languages()
